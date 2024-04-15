@@ -1,0 +1,50 @@
+name: Create PR for Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to create the PR from and to'
+        type: string
+        default: ''
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+# Disable permissions for all available scopes by default.
+# Any needed permissions should be configured at the job level.
+permissions: {}
+
+jobs:
+  get-old-version:
+    name: Get version
+    runs-on: ubuntu-latest
+    outputs:
+      old_version: ${{ steps.get-version.outputs.version }}
+      new_version: ${{ steps.bump-version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Get version
+        id: get-version
+        run: |
+          echo "cat package.json | grep '"version"' | cut -d '"' -f 4 > $GITHUB_OUTPUT"
+      - name: Bump version
+        id: bump-version
+        run: |
+          echo "${{ steps.get-version.outputs.version }} | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')"
+      - name: Update Files
+        id: update-files
+        run: |
+          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.version }}/g" package.json
+          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.version }}/g" package-lock.json
+          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.version }}/g" src/wp-includes/version.php
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+
