@@ -31,17 +31,17 @@ jobs:
       - name: Get version
         id: get-version
         run: |
-          echo "cat package.json | grep '\"version\"' | cut -d '\"' -f 4" >> $GITHUB_OUTPUT
+          echo "version=$(cat package.json | grep '"version"' | cut -d '"' -f 4)" >> $GITHUB_OUTPUT
       - name: Bump version
         id: bump-version
         run: |
-          echo "${{ steps.get-version.outputs.version }} | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')" >> $GITHUB_OUTPUT
+          echo "new_version=$(${{ steps.get-version.outputs.version }} | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')" >> $GITHUB_OUTPUT
       - name: Update Files
         id: update-files
         run: |
-          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.version }}/g" package.json
-          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.version }}/g" package-lock.json
-          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.version }}/g" src/wp-includes/version.php
+          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.new_version }}/g" package.json
+          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.new_version }}/g" package-lock.json
+          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.new_version }}/g" src/wp-includes/version.php
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
 
