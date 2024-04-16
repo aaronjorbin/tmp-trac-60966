@@ -21,11 +21,8 @@ permissions: {}
 
 jobs:
   get-old-version:
-    name: Get version
+    name: Create Version Bump PR
     runs-on: ubuntu-latest
-    outputs:
-      old_version: ${{ steps.get-version.outputs.version }}
-      new_version: ${{ steps.bump-version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -34,11 +31,11 @@ jobs:
       - name: Get version
         id: get-version
         run: |
-          echo "cat package.json | grep '"version"' | cut -d '"' -f 4 > $GITHUB_OUTPUT"
+          echo "cat package.json | grep '\"version\"' | cut -d '\"' -f 4" >> $GITHUB_OUTPUT
       - name: Bump version
         id: bump-version
         run: |
-          echo "${{ steps.get-version.outputs.version }} | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')"
+          echo "${{ steps.get-version.outputs.version }} | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')" >> $GITHUB_OUTPUT
       - name: Update Files
         id: update-files
         run: |
