@@ -41,7 +41,7 @@ jobs:
         run: |
           sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.new_version }}/g" package.json
           sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.new_version }}/g" package-lock.json
-          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.version }}/g" src/wp-includes/version.php
+          sed -i "s/${{ steps.get-version.outputs.version }}/${{ steps.bump-version.outputs.new_version }}/g" src/wp-includes/version.php
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
