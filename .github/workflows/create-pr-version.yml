@@ -35,7 +35,7 @@ jobs:
       - name: Bump version
         id: bump-version
         run: |
-          echo "new_version=$(${{ steps.get-version.outputs.version }} | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')" >> $GITHUB_OUTPUT
+          echo "new_version=$(echo ${{ steps.get-version.outputs.version }} | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')" >> $GITHUB_OUTPUT
       - name: Update Files
         id: update-files
         run: |
